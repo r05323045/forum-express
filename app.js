@@ -5,8 +5,11 @@ const flash = require('connect-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
 const path = require('path')
-const db = require('./models')
 const passport = require('./config/passport')
+
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -14,7 +17,7 @@ const port = process.env.PORT || 3000
 app.engine('handlebars', handlebars({ defaultLayout: 'main' }))
 app.set('view engine', 'handlebars')
 
-app.use(bodyParser.urlencoded({extended: true }))
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(session({ secret: 'secret', resave: false, saveUninitialized: false }))
 app.use(flash())
 app.use(passport.initialize())
