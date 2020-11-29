@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const flash = require('connect-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
+const path = require('path')
 const db = require('./models')
 const passport = require('./config/passport')
 
@@ -27,6 +28,8 @@ app.use((req, res, next) => {
 })
 
 app.use(methodOverride('_method'))
+
+app.use('/upload', express.static(path.join(__dirname, '/upload')))
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
