@@ -61,15 +61,21 @@ const restController = {
         { model: User, as: 'LikedUsers' },
         { model: Comment, include: [User] }
       ]
-    }).then(restaurant => {
-      const isFavorited = restaurant.FavoritedUsers.map(d => d.id).includes(req.user.id)
-      const isLiked = restaurant.LikedUsers.map(d => d.id).includes(req.user.id)
-      return res.render('restaurant', {
-        restaurant: restaurant.toJSON(),
-        isFavorited: isFavorited,
-        isLiked: isLiked
-      })
     })
+      .then(restaurant => {
+        restaurant.update({
+          views: restaurant.views + 1
+        })
+          .then(restaurant => {
+            const isFavorited = restaurant.FavoritedUsers.map(d => d.id).includes(req.user.id)
+            const isLiked = restaurant.LikedUsers.map(d => d.id).includes(req.user.id)
+            return res.render('restaurant', {
+              restaurant: restaurant.toJSON(),
+              isFavorited: isFavorited,
+              isLiked: isLiked
+            })
+          })
+      })
       .catch(err => {
         console.log(err)
         req.flash('error_messages', "restaurant didn't exist")
