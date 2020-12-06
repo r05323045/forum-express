@@ -73,6 +73,11 @@ const userController = {
         CommentCount: user.toJSON().Comments.reduce((acc, cur) => acc.map(item => item.Restaurant.id).includes(cur.Restaurant.id) ? acc : [...acc, cur], []).length
       })
     })
+      .catch(err => {
+        console.log(err)
+        req.flash('error_messages', "user didn't exist")
+        res.redirect('/restaurants')
+      })
   },
 
   editUser: (req, res) => {
@@ -85,6 +90,11 @@ const userController = {
         user: user.toJSON()
       })
     })
+      .catch(err => {
+        console.log(err)
+        req.flash('error_messages', "user didn't exist")
+        res.redirect('/restaurants')
+      })
   },
 
   putUser: (req, res) => {

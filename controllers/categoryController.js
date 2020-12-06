@@ -14,6 +14,11 @@ const categoryController = {
               category: category.toJSON()
             })
           })
+          .catch(err => {
+            console.log(err)
+            req.flash('error_messages', "category didn't exist")
+            res.redirect('/admin/categories')
+          })
       } else {
         return res.render('admin/categories', { categories: categories })
       }

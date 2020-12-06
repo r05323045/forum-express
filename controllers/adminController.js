@@ -75,6 +75,11 @@ const adminController = {
         restaurant: restaurant.toJSON()
       })
     })
+      .catch(err => {
+        console.log(err)
+        req.flash('error_messages', "restaurant didn't exist")
+        res.redirect('/admin/restaurants')
+      })
   },
 
   editRestaurant: (req, res) => {
@@ -88,6 +93,11 @@ const adminController = {
           restaurant: restaurant.toJSON()
         })
       })
+        .catch(err => {
+          console.log(err)
+          req.flash('error_messages', "restaurant didn't exist")
+          res.redirect('/admin/restaurants')
+        })
     })
   },
 

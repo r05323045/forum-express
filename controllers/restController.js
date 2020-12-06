@@ -70,6 +70,11 @@ const restController = {
         isLiked: isLiked
       })
     })
+      .catch(err => {
+        console.log(err)
+        req.flash('error_messages', "restaurant didn't exist")
+        res.redirect('/restaurants')
+      })
   },
 
   getFeeds: (req, res) => {
@@ -108,6 +113,11 @@ const restController = {
         comments: restaurant.toJSON().Comments.length
       })
     })
+      .catch(err => {
+        console.log(err)
+        req.flash('error_messages', "restaurant didn't exist")
+        res.redirect('/restaurants')
+      })
   },
 
   getTopRestaurant: (req, res) => {
