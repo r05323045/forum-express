@@ -4,6 +4,8 @@ const db = require('../models')
 const helpers = require('../_helpers')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 const User = db.User
+const Restaurant = db.Restaurant
+const Comment = db.Comment
 
 const userController = {
   signUpPage: (req, res) => {
@@ -50,10 +52,15 @@ const userController = {
   },
 
   getUser: (req, res) => {
-    return User.findByPk(req.params.id).then(user => {
+    return User.findByPk(req.params.id, {
+      include: [
+        { model: Comment, include: [Restaurant] }
+      ]
+    }).then(user => {
       return res.render('profile', {
         user: user.toJSON(),
-        permission: Number(helpers.getUser(req).id) === Number(req.params.id)
+        permission: Number(helpers.getUser(req).id) === Number(req.params.id),
+        comments: user.toJSON().Comments.reduce((acc, cur) => acc.map(item => item.Restaurant.id).includes(cur.Restaurant.id) ? acc : [...acc, cur], []) // remove duplicate restaurants
       })
     })
   },
