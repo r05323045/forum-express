@@ -1,6 +1,11 @@
 const bcrypt = require('bcryptjs')
+const imgur = require('imgur-node-api')
 const db = require('../models')
+const helpers = require('../_helpers')
+const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 const User = db.User
+const Restaurant = db.Restaurant
+const Comment = db.Comment
 
 const userController = {
   signUpPage: (req, res) => {
@@ -20,7 +25,8 @@ const userController = {
           User.create({
             name: req.body.name,
             email: req.body.email,
-            password: bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null)
+            password: bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null),
+            image: 'https://i.imgur.com/MaWx0su.png'
           }).then(user => {
             req.flash('success_messages', '成功註冊帳號！')
             return res.redirect('/signin')
@@ -43,6 +49,70 @@ const userController = {
     req.flash('success_messages', '登出成功！')
     req.logout()
     res.redirect('/signin')
+  },
+
+  getUser: (req, res) => {
+    return User.findByPk(req.params.id, {
+      include: [
+        { model: Comment, include: [Restaurant] }
+      ]
+    }).then(user => {
+      return res.render('profile', {
+        user: user.toJSON(),
+        permission: Number(helpers.getUser(req).id) === Number(req.params.id),
+        comments: user.toJSON().Comments.reduce((acc, cur) => acc.map(item => item.Restaurant.id).includes(cur.Restaurant.id) ? acc : [...acc, cur], []) // remove duplicate restaurants
+      })
+    })
+  },
+
+  editUser: (req, res) => {
+    if (Number(helpers.getUser(req).id) !== Number(req.params.id)) {
+      req.flash('error_messages', 'Access permission denied')
+      return res.redirect('/restaurants')
+    }
+    return User.findByPk(req.params.id).then(user => {
+      return res.render('editprofile', {
+        user: user.toJSON()
+      })
+    })
+  },
+
+  putUser: (req, res) => {
+    if (!req.body.name) {
+      req.flash('error_messages', "name didn't exist")
+      return res.redirect('back')
+    }
+
+    const { file } = req
+    if (file) {
+      imgur.setClientID(IMGUR_CLIENT_ID)
+      imgur.upload(file.path, (err, img) => {
+        console.log(err)
+        return User.findByPk(req.params.id)
+          .then((user) => {
+            user.update({
+              name: req.body.name,
+              image: file ? img.data.link : user.image
+            })
+              .then((restaurant) => {
+                req.flash('success_messages', 'Your profile was successfully to update')
+                res.redirect(`/users/${req.params.id}`)
+              })
+          })
+      })
+    } else {
+      return User.findByPk(req.params.id)
+        .then((user) => {
+          user.update({
+            name: req.body.name,
+            image: user.image
+          })
+            .then((restaurant) => {
+              req.flash('success_messages', 'Your profile was successfully to update')
+              res.redirect(`/users/${req.params.id}`)
+            })
+        })
+    }
   }
 }
 
