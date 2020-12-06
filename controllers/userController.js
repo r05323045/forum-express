@@ -57,13 +57,20 @@ const userController = {
   getUser: (req, res) => {
     return User.findByPk(req.params.id, {
       include: [
-        { model: Comment, include: [Restaurant] }
+        { model: Comment, include: [Restaurant] },
+        { model: Restaurant, as: 'FavoritedRestaurants' },
+        { model: User, as: 'Followers' },
+        { model: User, as: 'Followings' }
       ]
     }).then(user => {
       return res.render('profile', {
         user: user.toJSON(),
         permission: Number(helpers.getUser(req).id) === Number(req.params.id),
-        comments: user.toJSON().Comments.reduce((acc, cur) => acc.map(item => item.Restaurant.id).includes(cur.Restaurant.id) ? acc : [...acc, cur], []) // remove duplicate restaurants
+        FollowingCount: user.Followings.length,
+        FollowerCount: user.Followers.length,
+        FavoriteCount: user.FavoritedRestaurants.length,
+        comments: user.toJSON().Comments.reduce((acc, cur) => acc.map(item => item.Restaurant.id).includes(cur.Restaurant.id) ? acc : [...acc, cur], []), // remove duplicate restaurants
+        CommentCount: user.toJSON().Comments.reduce((acc, cur) => acc.map(item => item.Restaurant.id).includes(cur.Restaurant.id) ? acc : [...acc, cur], []).length
       })
     })
   },
