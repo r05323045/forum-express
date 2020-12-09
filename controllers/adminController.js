@@ -13,6 +13,13 @@ const adminController = {
       return res.render('admin/restaurants', data)
     })
   },
+
+  getRestaurant: (req, res) => {
+    adminService.getRestaurant(req, req, (data) => {
+      return res.render('admin/restaurant', data)
+    })
+  },
+
   createRestaurant: (req, res) => {
     Category.findAll({
       raw: true,
@@ -62,21 +69,6 @@ const adminController = {
         return res.redirect('/admin/restaurants')
       })
     }
-  },
-
-  getRestaurant: (req, res) => {
-    return Restaurant.findByPk(req.params.id, {
-      include: [Category]
-    }).then(restaurant => {
-      return res.render('admin/restaurant', {
-        restaurant: restaurant.toJSON()
-      })
-    })
-      .catch(err => {
-        console.log(err)
-        req.flash('error_messages', "restaurant didn't exist")
-        res.redirect('/admin/restaurants')
-      })
   },
 
   editRestaurant: (req, res) => {
