@@ -1,4 +1,5 @@
 const adminService = require('../../services/adminService.js')
+
 const adminController = {
   getRestaurants: (req, res) => {
     adminService.getRestaurants(req, res, (data) => {
@@ -8,6 +9,13 @@ const adminController = {
   getRestaurant: (req, res) => {
     adminService.getRestaurant(req, res, (data) => {
       return res.json(data)
+    })
+  },
+  deleteRestaurant: (req, res) => {
+    adminService.deleteRestaurant(req, res, (data) => {
+      if (data.status === 'success') {
+        return res.redirect('/admin/restaurants')
+      }
     })
   }
 }
